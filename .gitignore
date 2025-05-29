@@ -172,3 +172,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# 프로젝트별
+results/
+# data/ 의 엑셀만 무시하려면, 아니면 주석 처리
+# data/*.xlsx
+
+# PyCharm
+.idea/
