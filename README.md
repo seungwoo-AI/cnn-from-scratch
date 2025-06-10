@@ -112,8 +112,8 @@ cnn-from-scratch/
 
 ## 7 Further reading
 
-* **Project portfolio page** (screenshots & high‑level summary) → [https://github.com/seungwoo-AI/seungwoo-AI.github.io/tree/main/Projects/cnn-from-scratch](https://github.com/seungwoo-AI/seungwoo-AI.github.io/tree/main/Projects/cnn-from-scratch).
-* **Full 9‑page project report (PDF)** with derivations and ablations → [https://github.com/seungwoo-AI/seungwoo-AI.github.io/blob/main/Projects/cnn-from-scratch/Final%20Project\_2025.pdf](https://github.com/seungwoo-AI/seungwoo-AI.github.io/blob/main/Projects/cnn-from-scratch/Final%20Project_2025.pdf).
+* **Project portfolio page** (screenshots & high‑level summary) → [https://github.com/seungwoo-AI/seungwoo-AI.github.io/tree/main/Projects/cnn-from-scratch](https://github.com/seungwoo-AI/seungwoo-AI.github.io/tree/main/Projects/001_cnn-from-scratch).
+* **Full 9‑page project report (PDF)** with derivations and ablations → [https://github.com/seungwoo-AI/seungwoo-AI.github.io/blob/main/Projects/cnn-from-scratch/Final%20Project\_2025.pdf](https://github.com/seungwoo-AI/seungwoo-AI.github.io/blob/main/Projects/001_cnn-from-scratch/Final%20Project.pdf).
 * The training‑loss figure (page 4) and back‑prop equations (appendix A) supply additional context.
 
 ---
