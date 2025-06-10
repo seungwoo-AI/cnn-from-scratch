@@ -1,100 +1,117 @@
-# CNN‑from‑Scratch&#x20;
+# CNN-from-Scratch
 
-> **A minimal NumPy‑only CNN for 6 × 6 digit recognition (1 | 2 | 3)** — final project for *Numerical Optimization 2025*.
->
-> 📄 *Full math derivations and extended discussion:* see `docs/Final Project 2025.pdf`.
+Minimal **NumPy-only** convolutional neural network that classifies 6 × 6 grayscale digits (1 – 3). Built for the *Numerical Optimization 2025* final project and included in my graduate‑school portfolio as a demonstration of pure‑Python deep‑learning engineering.
 
 ---
 
-## Why this repo might help you
+## 1 Why this repo matters
 
-* **Walk‑through code** – every layer, gradient, and update rule lives in a plain Python function you can step through in a debugger.
-* **Framework‑free** – no PyTorch / TensorFlow; just the standard library + NumPy.
-* **Self‑contained dataset** – 96 tiny 6 × 6 bitmaps bundled in one Excel sheet; a full train‑eval run finishes in seconds.
-* **Six optimizers · three activations** ready to mix & match: *SGD · Momentum · NAG · RMSProp · Adam · AdamW*  ×  *ReLU · Sigmoid · Softmax*.
-* **Readable CLI scripts** – one command trains, another plots the learning curve.
+* **Framework‑free** – every forward/backward pass is handwritten in NumPy.
+* **Lightweight yet complete** – <1 kLOC but supports SGD, RMSprop, Adam, CLI training, and plotting utilities.
+* **Reproducible** – `train_all.py` recreates every experiment reported in the accompanying PDF.
+* **Didactic** – heavy in‑line comments, mathematically faithful code, and LaTeX blocks for future self‑review.
 
 ---
 
-## Quick start (tested on Python 3.11 + NumPy 1.26)
+## 2 Quick Start
 
 ```bash
-# create an environment (conda / venv)
-python -m pip install -r requirements.txt  # numpy pandas matplotlib
+git clone https://github.com/<your-id>/cnn-from-scratch.git
+cd cnn-from-scratch
 
-# train SimpleCNN with Adam for 300 epochs
-python code/train_adam.py --epochs 300 --lr 0.001
-# ➜ runs/adam-<timestamp>.log is created automatically
+python -m venv .venv && source .venv/bin/activate      # Windows ▶ .venv\Scripts\activate
+pip install -r requirements.txt
 
-# visualise loss & accuracy
-python code/plot_curve.py --log runs/adam-<timestamp>.log
+# run SimpleCNN + Adam for 200 epochs
+python code/train_sgd.py --epochs 200 --optimizer adam
 ```
 
-*Use **`--help`** on any **`train_*.py`** script for flags such as batch size, seed, model variant.*
+Logs and checkpoints land in `runs/`.
 
 ---
 
-## Dataset
+## 3 Dataset
 
-`data/handwriting_dataset.xlsx` contains **96 greyscale 6 × 6 bitmaps** and their labels.
+`data/handwriting_dataset.xlsx` stores 96 samples of 6 × 6 grayscale digits plus one‑hot labels.
+`util_excel.py` converts it to
 
-| Split | # samples |
-| ----- | --------- |
-| Train | 72        |
-| Val   | 12        |
-| Test  | 12        |
+$$
+X \in \mathbb{R}^{96\times1\times6\times6},\; y \in \{1,2,3\}^{96}
+$$
 
-`util_excel.py` converts each row into a `float32 (1, 6, 6)` tensor and the right‑most column into an integer label (1 | 2 | 3).
+ready for convolution.
 
 ---
 
-## Repository layout (one‑screen glance)
+## 4 Experiments & Results
+
+| Model      | Activation | Pool          | Optimizer                            | Val Acc (mean ± SD, 10 seeds) |
+| ---------- | ---------- | ------------- | ------------------------------------ | ----------------------------- |
+| S‑SGD      | Sigmoid    | 2 × 2 MaxPool | SGD (η = 0.9)                        | 96.25 ± 0.51 %                |
+| S‑RMS      | Sigmoid    | MaxPool       | RMSprop (η = 0.001, ρ = 0.9)         | 93.33 ± 2.80 %                |
+| **S‑Adam** | Sigmoid    | MaxPool       | Adam (η = 0.01, β₁ = 0.7, β₂ = 0.99) | **99.06 ± 0.98 %**            |
+| E‑RMS      | ReLU       | –             | RMSprop                              | 83.13 ± 16.67 %               |
+| E‑Adam     | ReLU       | –             | Adam                                 | 82.71 ± 21.91 %               |
+
+Recreate every line in the table with:
+
+```bash
+python code/train_all.py --plot
+```
+
+---
+
+## 5 Model math in one glance
+
+$$
+\begin{aligned}
+a &= x * W_1 + b_1 \\
+h_1 &= \sigma(a) \\
+\hat{y} &= \operatorname{softmax}\bigl(\operatorname{flatten}(h_1) W_2 + b_2\bigr) \\
+\mathcal{L} &= -\sum y\,\log \hat{y}
+\end{aligned}
+$$
+
+Back‑propagated error:
+
+$$
+\delta^{(l)} = \bigl(W^{(l+1)}\bigr)^{\!\top} \delta^{(l+1)} \odot \sigma'\bigl(z^{(l)}\bigr).
+$$
+
+These formulas map 1‑to‑1 to `model.py`.
+
+---
+
+## 6 Project layout
 
 ```text
-code/              core source
- ├─ nn/            low‑level ops
- │   ├─ conv.py          # Conv2D forward / backward (5‑loop NumPy)
- │   ├─ activation.py    # ReLU · Sigmoid · Softmax‑CE
- │   └─ optimizer.py     # SGD ↔ AdamW — 6 algorithms
- ├─ models/        network builders
- │   └─ model.py        # SimpleCNN & EnhancedCNN
- ├─ utils/         helpers
- │   └─ util_excel.py   # Excel → (N,1,6,6) loader
- ├─ train_*.py     runnable experiments (one per optimiser)
- └─ plot_curve.py  matplotlib learning‑curve helper
-
-data/handwriting_dataset.xlsx   96 labelled samples
-LICENSE
-README.md   (this file)
+cnn-from-scratch/
+ ├─ code/
+ │   ├─ model.py          # CNN layers & backprop
+ │   ├─ optimizer.py      # SGD, RMSprop, Adam
+ │   ├─ train_sgd.py      # CLI trainer
+ │   ├─ train_all.py      # reproduce all results
+ │   └─ visualize.py      # Matplotlib plots
+ ├─ data/
+ │   └─ handwriting_dataset.xlsx
+ ├─ runs/                 # generated after training
+ ├─ docs/
+ │   └─ abstract.md       # 1‑page summary of report
+ ├─ requirements.txt
+ └─ README.md
 ```
 
 ---
 
-## How the pieces fit
+## 7 Further reading
 
-1. **util\_excel.py** loads the Excel sheet → `(N, 1, 6, 6)` images + integer labels.
-2. **model.py** assembles either:
-
-   * *SimpleCNN* → `Conv (3×3) → Sigmoid → MaxPool (2×2) → Conv → Sigmoid → Softmax`.
-   * *EnhancedCNN* → 3× `Conv + ReLU`, no pooling.
-3. **optimizer.py** updates parameters via the chosen algorithm.
-4. **train\_\*.py** : forward → loss → backward → update (default 300 epochs).
-5. **plot\_curve.py** : turn the run log into a PNG for your report.
-
-All tensors are explicit NumPy arrays – equations in *Appendix A* map 1‑to‑1 to code line numbers.
+* **Project portfolio page** (screenshots & high‑level summary) → [https://github.com/seungwoo-AI/seungwoo-AI.github.io/tree/main/Projects/cnn-from-scratch](https://github.com/seungwoo-AI/seungwoo-AI.github.io/tree/main/Projects/cnn-from-scratch).
+* **Full 9‑page project report (PDF)** with derivations and ablations → [https://github.com/seungwoo-AI/seungwoo-AI.github.io/blob/main/Projects/cnn-from-scratch/Final%20Project\_2025.pdf](https://github.com/seungwoo-AI/seungwoo-AI.github.io/blob/main/Projects/cnn-from-scratch/Final%20Project_2025.pdf).
+* The training‑loss figure (page 4) and back‑prop equations (appendix A) supply additional context.
 
 ---
 
-## For reviewers / instructors
-
-* **Mathematical proof** – Appendix A shows back‑prop equations for Conv2D, MaxPool, ReLU, Sigmoid, Softmax‑CE with code references.
-* **Reproducibility** – `train_all.py --seed 0‑9` regenerates every experiment table in the report.
-* **Extensibility** – new layers drop in by subclassing the tiny `Layer` skeleton; see `nn/activation.py` for a template.
-* **Code style** – PEP 8 compliant; formatted with `black` 24.3.
-
----
-
-## Roadmap
+## 8 Roadmap
 
 * Batch‑norm & dropout layers.
 * Cython / Numba speed‑ups for the 5‑loop convolution.
@@ -102,4 +119,8 @@ All tensors are explicit NumPy arrays – equations in *Appendix A* map 1‑to�
 
 ---
 
-© 2025 Seung‑Woo Lee — MIT License
+## 9 License & citation
+
+MIT © 2025 Seung‑Woo Lee
+
+> Lee, S.‑W. (2025). *CNN‑from‑Scratch: A Minimal NumPy Implementation for 6 × 6 Digit Classification.* GitHub. <[https://github.com/](https://github.com/)/cnn-from-scratch>
