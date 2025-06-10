@@ -1,35 +1,50 @@
-# CNN‑from‑Scratch
+# CNN‑from‑Scratch&#x20;
 
-> **A minimal NumPy‑only CNN for 6 × 6 digit recognition (1, 2, 3)** — built as the final project for *Numerical Optimization 2025*.
+> **A minimal NumPy‑only CNN for 6 × 6 digit recognition (1 | 2 | 3)** — final project for *Numerical Optimization 2025*.
 >
-> 📄 *Full derivations, code listings, and discussion are in* `docs/Final Project 2025.pdf`.
+> 📄 *Full math derivations and extended discussion:* see `docs/Final Project 2025.pdf`.
 
 ---
 
 ## Why this repo might help you
 
-* **Walk‑through code** — every layer, gradient, and update rule sits in a plain Python function you can single‑step in a debugger.
-* **Framework‑free** — no PyTorch / TensorFlow; just the standard library + NumPy.
-* **Self‑contained dataset** — 96 tiny 6 × 6 bitmaps live in one Excel sheet, so a full train‑eval run finishes in seconds  fileciteturn0file0.
-* **Six optimizers + three activations** ready to mix & match: SGD · Momentum · NAG · RMSProp · Adam · AdamW + ReLU · Sigmoid · Softmax.
-* **Readable scripts** — one command trains, another plots the learning curve.
+* **Walk‑through code** – every layer, gradient, and update rule lives in a plain Python function you can step through in a debugger.
+* **Framework‑free** – no PyTorch / TensorFlow; just the standard library + NumPy.
+* **Self‑contained dataset** – 96 tiny 6 × 6 bitmaps bundled in one Excel sheet; a full train‑eval run finishes in seconds.
+* **Six optimizers · three activations** ready to mix & match: *SGD · Momentum · NAG · RMSProp · Adam · AdamW*  ×  *ReLU · Sigmoid · Softmax*.
+* **Readable CLI scripts** – one command trains, another plots the learning curve.
 
 ---
 
-## Quick start
+## Quick start (tested on Python 3.11 + NumPy 1.26)
 
 ```bash
-# set up (conda, venv …)
-python -m pip install -r requirements.txt  # numpy, pandas, matplotlib
+# create an environment (conda / venv)
+python -m pip install -r requirements.txt  # numpy pandas matplotlib
 
 # train SimpleCNN with Adam for 300 epochs
 python code/train_adam.py --epochs 300 --lr 0.001
+# ➜ runs/adam-<timestamp>.log is created automatically
 
-# visualise loss / accuracy
+# visualise loss & accuracy
 python code/plot_curve.py --log runs/adam-<timestamp>.log
 ```
 
-*See `--help` on any `train_*.py` script for flags such as batch size, seed, or model variant.*
+*Use **`--help`** on any **`train_*.py`** script for flags such as batch size, seed, model variant.*
+
+---
+
+## Dataset
+
+`data/handwriting_dataset.xlsx` contains **96 greyscale 6 × 6 bitmaps** and their labels.
+
+| Split | # samples |
+| ----- | --------- |
+| Train | 72        |
+| Val   | 12        |
+| Test  | 12        |
+
+`util_excel.py` converts each row into a `float32 (1, 6, 6)` tensor and the right‑most column into an integer label (1 | 2 | 3).
 
 ---
 
@@ -57,33 +72,34 @@ README.md   (this file)
 
 ## How the pieces fit
 
-1. **util\_excel.py** loads the Excel sheet into `(N,1,6,6)` float32 images + integer labels.
+1. **util\_excel.py** loads the Excel sheet → `(N, 1, 6, 6)` images + integer labels.
 2. **model.py** assembles either:
 
    * *SimpleCNN* → `Conv (3×3) → Sigmoid → MaxPool (2×2) → Conv → Sigmoid → Softmax`.
-   * *EnhancedCNN* → 3× `Conv + ReLU`, no pooling.
-3. **optimizer.py** updates parameters via the algorithm you choose.
-4. **train\_\*.py** drives the loop: forward → loss → backward → update, for 300 epochs by default.
-5. **plot\_curve.py** turns the run log into a PNG for your report.
+   * *EnhancedCNN* → 3× `Conv + ReLU`, no pooling.
+3. **optimizer.py** updates parameters via the chosen algorithm.
+4. **train\_\*.py** : forward → loss → backward → update (default 300 epochs).
+5. **plot\_curve.py** : turn the run log into a PNG for your report.
 
-Every forward / backward call returns explicit NumPy arrays so the math lines up with the equations in *Appendix A* of the report.
+All tensors are explicit NumPy arrays – equations in *Appendix A* map 1‑to‑1 to code line numbers.
 
 ---
 
 ## For reviewers / instructors
 
-* **Mathematical proof** — Appendix A shows back‑prop equations for Softmax‑CE, ReLU, Sigmoid, MaxPool, and Conv2D, each paired with the matching code line numbers.
-* **Reproducibility** — `train_all.py --seed 0‑9` reproduces every experiment table in the report.
-* **Extensibility** — new layers drop in by subclassing the simple `Layer` skeleton; see `nn/activation.py` for a template.
+* **Mathematical proof** – Appendix A shows back‑prop equations for Conv2D, MaxPool, ReLU, Sigmoid, Softmax‑CE with code references.
+* **Reproducibility** – `train_all.py --seed 0‑9` regenerates every experiment table in the report.
+* **Extensibility** – new layers drop in by subclassing the tiny `Layer` skeleton; see `nn/activation.py` for a template.
+* **Code style** – PEP 8 compliant; formatted with `black` 24.3.
 
 ---
 
-## Next steps (roadmap)
+## Roadmap
 
 * Batch‑norm & dropout layers.
 * Cython / Numba speed‑ups for the 5‑loop convolution.
-* Port the loader to MNIST or CIFAR‑10 (just swap `util_excel.py`).
+* Port the loader to MNIST or CIFAR‑10 (just swap `util_excel.py`).
 
 ---
 
-© 2025 Seung‑Woo Lee — MIT License
+© 2025 Seung‑Woo Lee — MIT License
