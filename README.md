@@ -79,11 +79,21 @@ h_1 &= \sigma(a) \\\\
 \end{aligned}
 $$
 
-Back-propagated error:
+Back-propagated error (two equivalent views):
 
 $$
-\delta^{(l)} = \left(W^{(l+1)}\right)^{\!\top} \delta^{(l+1)} \odot \sigma'\!\bigl(z^{(l)}\bigr).
+\begin{aligned}
+\delta^{(l)} &= (W^{(l+1)})^{\!\top}\,\delta^{(l+1)}
+               \odot\sigma'(z^{(l)})
+               &\quad\text{(implementation)} \\\\
+\delta^{(2)} &= \hat{y}-y \\\\
+\delta^{(1)} &= \sigma'(z^{(1)})\,
+               \odot\,\text{full-conv}(\delta^{(2)},\tilde{W}_2)
+               &\quad\text{(lecture)}
+\end{aligned}
 $$
+
+Here, $\tilde{W}_2$ is the 180°-rotated kernel and “full-conv” denotes convolution with padding so the output matches the input size.
 
 These formulas map 1-to-1 to `model.py`.
 
