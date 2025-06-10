@@ -32,14 +32,21 @@ Logs and checkpoints land in `runs/`.
 
 ## 3 Dataset
 
-`data/handwriting_dataset.xlsx` stores 96 samples of 6 × 6 grayscale digits plus one‑hot labels.
+> **Note: the original dataset file is *not* committed to this repository.**  
+> It was provided by the *Numerical Optimization (Spring 2025)* course at **<Your University>** strictly for coursework use.  
+> If you are enrolled in the class, download `handwriting_dataset.xlsx` from the course LMS and copy it to `data/` before running the code.
+
+The dataset contains 96 grayscale digit images of size 6 × 6 plus one-hot labels.  
 `util_excel.py` converts it to
 
 $$
-X \in \mathbb{R}^{96\times1\times6\times6},\; y \in \{1,2,3\}^{96}
+X \in \mathbb{R}^{96\times 1\times 6\times 6},\ y \in \{1,2,3\}^{96}
 $$
 
 ready for convolution.
+
+**Dataset license — course-restricted material**  
+© 2025 <Your University>. Redistribution outside the course context is **not permitted**.  
 
 ---
 
@@ -65,20 +72,20 @@ python code/train_all.py --plot
 
 $$
 \begin{aligned}
-a &= x * W_1 + b_1 \\
-h_1 &= \sigma(a) \\
-\hat{y} &= \operatorname{softmax}\bigl(\operatorname{flatten}(h_1) W_2 + b_2\bigr) \\
-\mathcal{L} &= -\sum y\,\log \hat{y}
+a &= x * W_1 + b_1 \\\\
+h_1 &= \sigma(a) \\\\
+\hat{y} &= \mathrm{softmax}\bigl(\mathrm{flatten}(h_1) W_2 + b_2\bigr) \\\\
+\mathcal{L} &= - \sum y \log \hat{y}
 \end{aligned}
 $$
 
-Back‑propagated error:
+Back-propagated error:
 
 $$
-\delta^{(l)} = \bigl(W^{(l+1)}\bigr)^{\!\top} \delta^{(l+1)} \odot \sigma'\bigl(z^{(l)}\bigr).
+\delta^{(l)} = \left(W^{(l+1)}\right)^{\!\top} \delta^{(l+1)} \odot \sigma'\!\bigl(z^{(l)}\bigr).
 $$
 
-These formulas map 1‑to‑1 to `model.py`.
+These formulas map 1-to-1 to `model.py`.
 
 ---
 
