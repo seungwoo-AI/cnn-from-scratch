@@ -1,113 +1,89 @@
-# CNN‑from‑Scratch 🧑‍💻📐
+# CNN‑from‑Scratch
 
-Pure‑Python (NumPy‑only) Convolutional Neural Network that classifies **6 × 6 handwritten digits (classes : 1 , 2 , 3)** — implemented as the final project for the *Numerical Optimization* course.
+> **A minimal NumPy‑only CNN for 6 × 6 digit recognition (1, 2, 3)** — built as the final project for *Numerical Optimization 2025*.
+>
+> 📄 *Full derivations, code listings, and discussion are in* `docs/Final Project 2025.pdf`.
 
-This repository is meant to be **educational first**: every layer, gradient, and update rule is written from scratch so you can step through the code and *really* see what happens under the hood.
+---
 
-## ✨ Key Points
+## Why this repo might help you
 
-* **Zero deep‑learning frameworks** – only the Python standard library, NumPy, Pandas, and Matplotlib.
-* **Multiple optimizers** – SGD, RMSProp, Adam — switchable from the CLI.
-* **Tiny custom dataset** – an Excel file with 6×6 bitmaps that lets the model train in seconds on a laptop CPU.
-* **Clean experiment scripts** – one‑liner training commands plus an automatic learning‑curve visualizer.
-* **Readable architecture** – <100 LOC for the CNN itself; everything is broken into small, testable pieces.
+* **Walk‑through code** — every layer, gradient, and update rule sits in a plain Python function you can single‑step in a debugger.
+* **Framework‑free** — no PyTorch / TensorFlow; just the standard library + NumPy.
+* **Self‑contained dataset** — 96 tiny 6 × 6 bitmaps live in one Excel sheet, so a full train‑eval run finishes in seconds  fileciteturn0file0.
+* **Six optimizers + three activations** ready to mix & match: SGD · Momentum · NAG · RMSProp · Adam · AdamW + ReLU · Sigmoid · Softmax.
+* **Readable scripts** — one command trains, another plots the learning curve.
 
-## 🗂️ Directory Layout
+---
 
-```text
-.
-├── code
-│   ├── models
-│   │   └── model.py            # 1‑Conv‑layer + 2‑FC CNN
-│   ├── nn
-│   │   ├── conv.py             # forward / backward of 2‑D convolution
-│   │   ├── activation.py       # ReLU, Softmax
-│   │   └── optimizer.py        # SGD, RMSProp, Adam (NumPy)
-│   ├── utils
-│   │   └── util_excel.py       # Excel ↔ NumPy converter
-│   ├── train_sgd.py            # train with vanilla SGD
-│   ├── train_RMS.py            # train with RMSProp
-│   ├── train_adam.py           # train with Adam
-│   ├── train_all.py            # run a sweep over hyper‑params
-│   └── plot_curve.py           # loss / accuracy curves
-├── data
-│   └── handwriting_dataset.xlsx # 6×6 digit bitmaps & labels
-├── LICENSE
-└── README.md   ← you are here
-```
-
-## 🚀 Quick Start
+## Quick start
 
 ```bash
-# 1. Create an environment (conda or venv)
-pip install -r requirements.txt  # only numpy, pandas, matplotlib
+# set up (conda, venv …)
+python -m pip install -r requirements.txt  # numpy, pandas, matplotlib
 
-# 2. Train with your favourite optimizer
-python code/train_adam.py --epochs 100 --lr 0.001
+# train SimpleCNN with Adam for 300 epochs
+python code/train_adam.py --epochs 300 --lr 0.001
 
-# 3. Plot learning curves
-python code/plot_curve.py --log runs/adam‑2025‑06‑11‑12‑34.log
+# visualise loss / accuracy
+python code/plot_curve.py --log runs/adam-<timestamp>.log
 ```
 
-## 🧮 Math Primer
+*See `--help` on any `train_*.py` script for flags such as batch size, seed, or model variant.*
 
-The convolution used in `conv.py` is the discrete cross‑correlation commonly employed in CNNs:
+---
 
-$$
-y_{i,j,k}^{(l)} \;=\;
-\\sigma\\Bigl(\\;\\sum_{c=1}^{C_{\\text{in}}}
-\\bigl(W_{k}^{(l)} * x\\bigr)_{i,j,c}
-\;+\; b_{k}^{(l)}\\Bigr)\\!,
-$$
+## Repository layout (one‑screen glance)
 
-where $*$ denotes the 2‑D correlation operator and $\\sigma$ is ReLU.
-The network is trained by minimising the cross‑entropy
+```text
+code/              core source
+ ├─ nn/            low‑level ops
+ │   ├─ conv.py          # Conv2D forward / backward (5‑loop NumPy)
+ │   ├─ activation.py    # ReLU · Sigmoid · Softmax‑CE
+ │   └─ optimizer.py     # SGD ↔ AdamW — 6 algorithms
+ ├─ models/        network builders
+ │   └─ model.py        # SimpleCNN & EnhancedCNN
+ ├─ utils/         helpers
+ │   └─ util_excel.py   # Excel → (N,1,6,6) loader
+ ├─ train_*.py     runnable experiments (one per optimiser)
+ └─ plot_curve.py  matplotlib learning‑curve helper
 
-$$
-\\mathcal{L}
-= -\\frac{1}{N}\\sum_{n=1}^{N}\\sum_{c=1}^{3}
- y_{n,c}\\,\\log \\hat{y}_{n,c}.
-$$
+data/handwriting_dataset.xlsx   96 labelled samples
+LICENSE
+README.md   (this file)
+```
 
-## 📊 Sample Results
+---
 
-| Optimizer | Final Accuracy (val) | Epochs |
-| --------- | -------------------- | ------ |
-| SGD       | 91 %                 | 200    |
-| RMSProp   | 94 %                 | 150    |
-| Adam      | **97 %**             | 120    |
+## How the pieces fit
 
-*(On the provided dataset; see `runs/` for complete logs.)*
+1. **util\_excel.py** loads the Excel sheet into `(N,1,6,6)` float32 images + integer labels.
+2. **model.py** assembles either:
 
-## 📝 Dataset
+   * *SimpleCNN* → `Conv (3×3) → Sigmoid → MaxPool (2×2) → Conv → Sigmoid → Softmax`.
+   * *EnhancedCNN* → 3× `Conv + ReLU`, no pooling.
+3. **optimizer.py** updates parameters via the algorithm you choose.
+4. **train\_\*.py** drives the loop: forward → loss → backward → update, for 300 epochs by default.
+5. **plot\_curve.py** turns the run log into a PNG for your report.
 
-`handwriting_dataset.xlsx` contains *N = 1 800* grayscale 6×6 bitmaps laid out row‑wise plus the ground‑truth label in the last column.
-The helper `util_excel.py` converts the sheet to a `(N, 6, 6)` NumPy array on‑the‑fly.
+Every forward / backward call returns explicit NumPy arrays so the math lines up with the equations in *Appendix A* of the report.
 
-## 🔬 How It Works – File‑by‑File
+---
 
-| File            | Purpose                                                                 |
-| --------------- | ----------------------------------------------------------------------- |
-| `conv.py`       | Implements im2col + GEMM convolution and its backward pass              |
-| `activation.py` | ReLU and numerically stable Softmax                                     |
-| `optimizer.py`  | Plain NumPy implementations of SGD, RMSProp, Adam                       |
-| `model.py`      | Composes `Conv2D → ReLU → FC → Softmax`                                 |
-| `train_*.py`    | Training loops with CLI flags (epochs, lr, batch size)                  |
-| `plot_curve.py` | Reads the `.log` files produced during training and plots loss/accuracy |
+## For reviewers / instructors
 
-Feel free to dive into any of them—each function is thoroughly doc‑commented.
+* **Mathematical proof** — Appendix A shows back‑prop equations for Softmax‑CE, ReLU, Sigmoid, MaxPool, and Conv2D, each paired with the matching code line numbers.
+* **Reproducibility** — `train_all.py --seed 0‑9` reproduces every experiment table in the report.
+* **Extensibility** — new layers drop in by subclassing the simple `Layer` skeleton; see `nn/activation.py` for a template.
 
-## 🛠️ Extending the Project
+---
 
-* Add more layers (e.g. MaxPool, Dropout).
-* Swap the Excel dataset for **MNIST** (just change the loader).
-* Implement **momentum** or **Nesterov** in `optimizer.py`.
-* Port the training loop to **JAX** or **PyTorch** for comparison.
+## Next steps (roadmap)
 
-## 🤝 Contributing
+* Batch‑norm & dropout layers.
+* Cython / Numba speed‑ups for the 5‑loop convolution.
+* Port the loader to MNIST or CIFAR‑10 (just swap `util_excel.py`).
 
-Issues and pull requests are welcome! Fork the repo, create a feature branch, and open a PR.
+---
 
-## 📄 License
-
-This project is released under the MIT License – see [LICENSE](LICENSE) for details.
+© 2025 Seung‑Woo Lee — MIT License
