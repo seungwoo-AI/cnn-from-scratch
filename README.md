@@ -140,4 +140,4 @@ cnn-from-scratch/
 
 MIT © 2025 Seung‑Woo Lee
 
-> Lee, S.‑W. (2025). *CNN‑from‑Scratch: A Minimal NumPy Implementation for 6 × 6 Digit Classification.* GitHub. <[https://github.com/](https://github.com/)/cnn-from-scratch>
+> Lee, S.‑W. (2025). *CNN‑from‑Scratch: A Minimal NumPy Implementation for 6 × 6 Digit Classification.* GitHub. <[https://github.com/](https://github.com/cnn-from-scratch>
